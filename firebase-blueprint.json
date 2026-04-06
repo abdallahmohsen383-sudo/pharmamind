@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "Invoice": {
+      "title": "Invoice",
+      "description": "An invoice containing calculated items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "items": { "type": "array" },
+        "totalValue": { "type": "number" },
+        "totalItems": { "type": "number" },
+        "totalUnits": { "type": "number" },
+        "isSold": { "type": "boolean" },
+        "soldToClientId": { "type": "string" },
+        "soldDate": { "type": "string" },
+        "isReviewed": { "type": "boolean" },
+        "reviewedDate": { "type": "string" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "date", "items", "totalValue", "totalItems", "groupId"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "A supplier of items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "notes": { "type": "string" },
+        "discountNormal": { "type": "number" },
+        "discountSpecial": { "type": "number" },
+        "discountOther": { "type": "number" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "name", "groupId"]
+    },
+    "PendingItem": {
+      "title": "PendingItem",
+      "description": "An item pending to be ordered",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "itemName": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "addedDate": { "type": "string" },
+        "notes": { "type": "string" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "itemName", "supplierId", "supplierName", "addedDate", "groupId"]
+    },
+    "CatalogItem": {
+      "title": "CatalogItem",
+      "description": "An item in the catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "publicPrice": { "type": "number" },
+        "pharmaPrice": { "type": "number" },
+        "supplierDiscountVal": { "type": "number" },
+        "taxValue": { "type": "number" },
+        "taxMethod": { "type": "string" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "name", "type", "publicPrice", "pharmaPrice", "groupId"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "A client of the pharmacy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "balance": { "type": "number" },
+        "notes": { "type": "string" },
+        "discountNormal": { "type": "number" },
+        "discountSpecial": { "type": "number" },
+        "discountOther": { "type": "number" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "name", "balance", "groupId"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A transaction with a client",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string" },
+        "amount": { "type": "number" },
+        "notes": { "type": "string" },
+        "relatedInvoiceId": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "groupId": { "type": "string" }
+      },
+      "required": ["id", "clientId", "date", "type", "amount", "groupId"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User specific settings and cloud configuration",
+      "type": "object",
+      "properties": {
+        "pharmacyName": { "type": "string" },
+        "cloudConfig": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["pharmacyName", "cloudConfig", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/invoices/{invoiceId}": {
+      "schema": { "$ref": "#/entities/Invoice" },
+      "description": "Invoices collection"
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "Suppliers collection"
+    },
+    "/pendingItems/{pendingItemId}": {
+      "schema": { "$ref": "#/entities/PendingItem" },
+      "description": "Pending items collection"
+    },
+    "/catalog/{catalogItemId}": {
+      "schema": { "$ref": "#/entities/CatalogItem" },
+      "description": "Catalog items collection"
+    },
+    "/clients/{clientId}": {
+      "schema": { "$ref": "#/entities/Client" },
+      "description": "Clients collection"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Transactions collection"
+    },
+    "/userSettings/{userId}": {
+      "schema": { "$ref": "#/entities/UserSettings" },
+      "description": "User settings collection"
+    }
+  }
+}

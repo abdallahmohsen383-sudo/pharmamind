@@ -1,0 +1,7 @@
+{
+  "name": "PharmaMind - Smart Pharmacy Assistant",
+  "description": "ادعو لاخى بالرحمة والغفران والجنة",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

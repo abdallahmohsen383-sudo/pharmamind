@@ -1,0 +1,13 @@
+{
+  "appId": "com.pharmamind.app",
+  "appName": "PharmaMind",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}

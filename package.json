@@ -1,0 +1,66 @@
+{
+  "name": "pharmamind",
+  "private": true,
+  "version": "2.1.0",
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit",
+    "electron": "electron .",
+    "electron:build": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.7.0",
+    "@capacitor/app": "^5.0.7",
+    "@capacitor/core": "^5.7.0",
+    "@capacitor/filesystem": "^5.2.0",
+    "@capacitor/ios": "^5.7.0",
+    "@capacitor/network": "^5.0.7",
+    "@capacitor/preferences": "^5.0.7",
+    "@capacitor/share": "^5.0.7",
+    "crypto-js": "^4.2.0",
+    "firebase": "^12.11.0",
+    "html2canvas": "^1.4.1",
+    "html5-qrcode": "^2.3.8",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^0.344.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.0",
+    "recharts": "^2.12.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^5.7.0",
+    "@types/crypto-js": "^4.2.2",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "terser": "^5.46.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.0"
+  },
+  "build": {
+    "appId": "com.pharmamind.app",
+    "productName": "PharmaMind",
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    }
+  }
+}

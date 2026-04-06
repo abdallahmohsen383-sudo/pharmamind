@@ -1,0 +1,255 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // This security rules file assumes the following data structures:
+    //
+    // Collection: invoices
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - date: string (required)
+    //   - items: list (required)
+    //   - totalValue: number (required)
+    //   - totalItems: number (required)
+    //   - groupId: string (required)
+    //
+    // Collection: suppliers
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - groupId: string (required)
+    //
+    // Collection: pendingItems
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - itemName: string (required)
+    //   - supplierId: string (required)
+    //   - supplierName: string (required)
+    //   - addedDate: string (required)
+    //   - groupId: string (required)
+    //
+    // Collection: catalog
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - type: string (required)
+    //   - publicPrice: number (required)
+    //   - pharmaPrice: number (required)
+    //   - groupId: string (required)
+    //
+    // Collection: clients
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - balance: number (required)
+    //   - groupId: string (required)
+    //
+    // Collection: transactions
+    // Document ID: auto-generated or custom
+    // Fields:
+    //   - id: string (required)
+    //   - clientId: string (required)
+    //   - date: string (required)
+    //   - type: string (required)
+    //   - amount: number (required)
+    //   - groupId: string (required)
+    //
+    // Collection: userSettings
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - pharmacyName: string (required)
+    //   - cloudConfig: map (required)
+    //   - updatedAt: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    // Check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user is an admin
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.email == "aamaamaama00@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    // Validate required fields exist
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate that a string is within length bounds
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    // Validate optional string (if present, must be string and within length)
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() >= minLen &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    // Ensure groupId is not modified on update
+    function groupIdNotModified() {
+      return !('groupId' in request.resource.data) ||
+        request.resource.data.groupId == resource.data.groupId;
+    }
+
+    // Validate email format
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate ISO 8601 date string format
+    function isValidDateString(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidInvoice() {
+      return hasRequiredFields(['id', 'date', 'items', 'totalValue', 'totalItems', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('date', 1, 50) &&
+             request.resource.data.items is list &&
+             request.resource.data.totalValue is number &&
+             request.resource.data.totalItems is number &&
+             validStringLength('groupId', 1, 100);
+    }
+
+    function isValidSupplier() {
+      return hasRequiredFields(['id', 'name', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('name', 1, 150) &&
+             validStringLength('groupId', 1, 100) &&
+             isValidOptionalString('phone', 0, 50) &&
+             isValidOptionalString('notes', 0, 1000);
+    }
+
+    function isValidPendingItem() {
+      return hasRequiredFields(['id', 'itemName', 'supplierId', 'supplierName', 'addedDate', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('itemName', 1, 200) &&
+             validStringLength('supplierId', 1, 100) &&
+             validStringLength('supplierName', 1, 150) &&
+             validStringLength('addedDate', 1, 50) &&
+             validStringLength('groupId', 1, 100) &&
+             isValidOptionalString('notes', 0, 1000);
+    }
+
+    function isValidCatalogItem() {
+      return hasRequiredFields(['id', 'name', 'type', 'publicPrice', 'pharmaPrice', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('name', 1, 200) &&
+             validStringLength('type', 1, 50) &&
+             request.resource.data.publicPrice is number &&
+             request.resource.data.pharmaPrice is number &&
+             validStringLength('groupId', 1, 100);
+    }
+
+    function isValidClient() {
+      return hasRequiredFields(['id', 'name', 'balance', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('name', 1, 150) &&
+             request.resource.data.balance is number &&
+             validStringLength('groupId', 1, 100) &&
+             isValidOptionalString('phone', 0, 50) &&
+             isValidOptionalString('notes', 0, 1000);
+    }
+
+    function isValidTransaction() {
+      return hasRequiredFields(['id', 'clientId', 'date', 'type', 'amount', 'groupId']) &&
+             validStringLength('id', 1, 100) &&
+             validStringLength('clientId', 1, 100) &&
+             validStringLength('date', 1, 50) &&
+             validStringLength('type', 1, 50) &&
+             request.resource.data.amount is number &&
+             validStringLength('groupId', 1, 100) &&
+             isValidOptionalString('notes', 0, 1000) &&
+             isValidOptionalString('relatedInvoiceId', 0, 100) &&
+             isValidOptionalString('invoiceNumber', 0, 100);
+    }
+
+    function isValidUserSettings() {
+      return hasRequiredFields(['pharmacyName', 'cloudConfig', 'updatedAt']) &&
+             validStringLength('pharmacyName', 1, 200) &&
+             request.resource.data.cloudConfig is map &&
+             isValidDateString(request.resource.data.updatedAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidInvoice();
+      allow update: if isAuthenticated() && isValidInvoice() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidSupplier();
+      allow update: if isAuthenticated() && isValidSupplier() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /pendingItems/{pendingItemId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidPendingItem();
+      allow update: if isAuthenticated() && isValidPendingItem() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /catalog/{catalogItemId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidCatalogItem();
+      allow update: if isAuthenticated() && isValidCatalogItem() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /clients/{clientId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidClient();
+      allow update: if isAuthenticated() && isValidClient() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidTransaction();
+      allow update: if isAuthenticated() && isValidTransaction() && groupIdNotModified();
+      allow delete: if isAuthenticated();
+    }
+
+    match /userSettings/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow create, update: if isAuthenticated() && request.auth.uid == userId && isValidUserSettings();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

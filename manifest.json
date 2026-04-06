@@ -1,0 +1,11 @@
+
+{
+  "name": "PharmaMind",
+  "short_name": "PharmaMind",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#0ea5e9",
+  "description": "حاسبة الصيدلي الذكية ونظام إدارة الفواتير",
+  "orientation": "portrait"
+}
